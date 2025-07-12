@@ -103,7 +103,7 @@
 | `TELEGRAM_GROUP_ID` | Telegram群组ID（私有频道） | `-1001234567890` |
 | `TELEGRAM_CHANNEL_ID` | Telegram频道ID（公开频道） | `@your_channel` |
 | `MAX_FILE_SIZE` | 最大文件大小（字节） | `5242880` (5MB) |
-| `CF_PAGES_URL` | 自定义域名（必选） | `your-domain.pages.dev` |
+| `CF_PAGES_URL` | 自定义域名（可选） | `your-domain.pages.dev` |
 | `IMAGE_STORE` | KV命名空间绑定（可选） | 自动配置 |
 
 **注意：** `TELEGRAM_GROUP_ID` 和 `TELEGRAM_CHANNEL_ID` 只需要配置其中一个：

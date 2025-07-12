@@ -47,18 +47,19 @@ export async function onRequestGet(context) {
 
 async function getOriginalImageUrl(imageId, env) {
   try {
+    // 提取基础ID（移除扩展名）
+    const baseId = imageId.replace(/\.(jpg|jpeg|png|gif|webp)$/i, '');
+    
     // 尝试从KV存储获取
     if (env.IMAGE_STORE) {
-      const data = await env.IMAGE_STORE.get(imageId);
+      const data = await env.IMAGE_STORE.get(baseId);
       if (data) {
         return JSON.parse(data).url;
       }
     }
     
     // 如果KV不可用，尝试从imageId解析（假设格式为 file_<fileId>）
-    if (imageId.startsWith('file_')) {
-      // 移除扩展名
-      const baseId = imageId.replace(/\.(jpg|jpeg|png|gif|webp)$/i, '');
+    if (baseId.startsWith('file_')) {
       const fileId = baseId.replace('file_', '').replace(/_/g, '/');
       const botToken = env.TELEGRAM_BOT_TOKEN;
       

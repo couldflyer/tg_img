@@ -142,7 +142,15 @@ async function uploadToTelegram(file, env, request) {
       
       // 生成自定义文件ID和代理URL
       const customFileId = `file_${largestPhoto.file_id.replace(/[\/\-]/g, '_')}`;
-      const proxyUrl = `https://${env.CF_PAGES_URL || request.headers.get('host') || 'your-domain.pages.dev'}/photos/${customFileId}.jpg`;
+      
+      // 根据原始文件获取正确的扩展名
+      const originalFileName = file.name;
+      const fileExtension = originalFileName.substring(originalFileName.lastIndexOf('.') + 1).toLowerCase();
+      // 确保扩展名是支持的格式
+      const validExtensions = ['jpg', 'jpeg', 'png', 'gif', 'webp'];
+      const finalExtension = validExtensions.includes(fileExtension) ? fileExtension : 'jpg';
+      
+      const proxyUrl = `https://${env.CF_PAGES_URL || request.headers.get('host') || 'your-domain.pages.dev'}/photos/${customFileId}.${finalExtension}`;
       
       // 存储映射关系到KV（如果可用）
       try {
@@ -151,9 +159,10 @@ async function uploadToTelegram(file, env, request) {
             url: originalUrl,
             fileId: largestPhoto.file_id,
             fileName: file.name,
+            fileExtension: finalExtension,
             uploadTime: new Date().toISOString()
           }), {
-            expirationTtl: 365 * 24 * 60 * 60 // 1年过期
+            expirationTtl: 3650 * 24 * 60 * 60 // 1年过期
           });
         }
       } catch (kvError) {
