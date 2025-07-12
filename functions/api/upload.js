@@ -6,7 +6,7 @@ export async function onRequestPost(context) {
 
   try {
     // 检查环境变量
-    if (!env.TELEGRAM_BOT_TOKEN || !env.TELEGRAM_CHANNEL_ID) {
+    if (!env.TELEGRAM_BOT_TOKEN || (!env.TELEGRAM_GROUP_ID && !env.TELEGRAM_CHANNEL_ID)) {
       return new Response(JSON.stringify({
         success: false,
         error: '服务配置错误'
@@ -106,11 +106,12 @@ export async function onRequestPost(context) {
 
 async function uploadToTelegram(file, env) {
   const botToken = env.TELEGRAM_BOT_TOKEN;
-  const channelId = env.TELEGRAM_CHANNEL_ID;
+  // 支持群组ID（私有频道）和频道用户名（公开频道）
+  const chatId = env.TELEGRAM_GROUP_ID || env.TELEGRAM_CHANNEL_ID;
   
   // 创建表单数据
   const formData = new FormData();
-  formData.append('chat_id', channelId);
+  formData.append('chat_id', chatId);
   formData.append('photo', file, file.name);
   formData.append('caption', file.name);
 

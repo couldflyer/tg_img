@@ -52,7 +52,9 @@
    在 Settings → Environment variables 中添加：
    ```
    TELEGRAM_BOT_TOKEN=your_bot_token_here
-   TELEGRAM_CHANNEL_ID=@your_channel_username
+   TELEGRAM_GROUP_ID=-1001234567890  # 私有频道
+   # 或者
+   TELEGRAM_CHANNEL_ID=@your_channel  # 公开频道
    MAX_FILE_SIZE=5242880
    ```
 
@@ -80,6 +82,9 @@
 4. **设置环境变量**
    ```bash
    wrangler pages secret put TELEGRAM_BOT_TOKEN
+   # 私有频道使用群组ID
+   wrangler pages secret put TELEGRAM_GROUP_ID
+   # 或者公开频道使用频道用户名
    wrangler pages secret put TELEGRAM_CHANNEL_ID
    wrangler pages secret put MAX_FILE_SIZE
    ```
@@ -89,8 +94,13 @@
 | 变量名 | 说明 | 示例值 |
 |--------|------|--------|
 | `TELEGRAM_BOT_TOKEN` | Telegram Bot Token | `123456:ABC-DEF1234ghIkl-zyx57W2v1u123ew11` |
-| `TELEGRAM_CHANNEL_ID` | Telegram频道ID | `@your_channel` |
+| `TELEGRAM_GROUP_ID` | Telegram群组ID（私有频道） | `-1001234567890` |
+| `TELEGRAM_CHANNEL_ID` | Telegram频道ID（公开频道） | `@your_channel` |
 | `MAX_FILE_SIZE` | 最大文件大小（字节） | `5242880` (5MB) |
+
+**注意：** `TELEGRAM_GROUP_ID` 和 `TELEGRAM_CHANNEL_ID` 只需要配置其中一个：
+- 私有频道：使用 `TELEGRAM_GROUP_ID`，格式为负数ID（如：-1001234567890）
+- 公开频道：使用 `TELEGRAM_CHANNEL_ID`，格式为@用户名（如：@your_channel）
 
 ## 🤖 创建Telegram Bot
 
@@ -103,11 +113,17 @@
    - 输入机器人用户名（如：myimagehost_bot）
    - 获取Bot Token
 
-3. **创建频道**
+3. **创建频道（公开或私有）**
    - 创建一个新的Telegram频道
    - 将Bot添加为频道管理员
-   - 确保频道是公开的
-   - 获取频道用户名（如：@myimagechannel）
+   - 公开频道：确保频道是公开的，获取频道用户名（如：@myimagechannel）
+   - 私有频道：获取频道的群组ID（负数格式，如：-1001234567890）
+   
+4. **获取群组ID（仅私有频道需要）**
+   - 将Bot添加到私有频道后
+   - 向频道发送任意消息
+   - 使用 Telegram Bot API 获取更新：`https://api.telegram.org/bot<your_bot_token>/getUpdates`
+   - 在返回的JSON中找到 `chat.id` 字段（负数值）
 
 ## 📋 API文档
 
@@ -182,9 +198,9 @@
 ## 📝 注意事项
 
 1. **Telegram频道设置**
-   - 频道必须是公开的
    - Bot必须有发送消息权限
-   - 确保频道用户名格式正确（@channel_name）
+   - 私有频道：确保Bot被添加为管理员，使用群组ID格式（负数）
+   - 公开频道：确保频道是公开的，使用频道用户名格式（@channel_name）
 
 2. **文件限制**
    - 支持的格式：JPEG, JPG, PNG, GIF, WebP
