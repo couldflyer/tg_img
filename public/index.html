@@ -4,6 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>TG图床 - by Liuts</title>
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Cdefs%3E%3ClinearGradient id='grad' x1='0%25' y1='0%25' x2='100%25' y2='100%25'%3E%3Cstop offset='0%25' style='stop-color:%234361ee;stop-opacity:1' /%3E%3Cstop offset='100%25' style='stop-color:%237209b7;stop-opacity:1' /%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='100' height='100' rx='20' fill='url(%23grad)'/%3E%3Cpath d='M50 25 L75 40 L75 60 L50 75 L25 60 L25 40 Z' fill='white' stroke='white' stroke-width='2'/%3E%3Ccircle cx='50' cy='45' r='8' fill='url(%23grad)'/%3E%3Crect x='42' y='55' width='16' height='4' rx='2' fill='url(%23grad)'/%3E%3C/svg%3E">
+    <link rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Cdefs%3E%3ClinearGradient id='grad' x1='0%25' y1='0%25' x2='100%25' y2='100%25'%3E%3Cstop offset='0%25' style='stop-color:%234361ee;stop-opacity:1' /%3E%3Cstop offset='100%25' style='stop-color:%237209b7;stop-opacity:1' /%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='100' height='100' rx='20' fill='url(%23grad)'/%3E%3Cpath d='M50 25 L75 40 L75 60 L50 75 L25 60 L25 40 Z' fill='white' stroke='white' stroke-width='2'/%3E%3Ccircle cx='50' cy='45' r='8' fill='url(%23grad)'/%3E%3Crect x='42' y='55' width='16' height='4' rx='2' fill='url(%23grad)'/%3E%3C/svg%3E">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
@@ -477,12 +479,12 @@
                         </div>
                         <div class="upload-text">
                             <h3>拖放图片到此处上传</h3>
-                            <p>支持JPG, PNG, GIF, WEBP | 最大5MB<br/>单IP限速 100/h </p>
+                            <p>支持JPG, PNG, GIF, WEBP | 最大5MB<br/>一次最多上传10张 | 单IP限速 50/h </p>
                         </div>
                         <button class="btn" id="browse-btn">
                             <i class="fas fa-folder-open"></i>选择图片
                         </button>
-                        <input type="file" id="file-input" accept="image/*">
+                        <input type="file" id="file-input" accept="image/*" multiple>
                       </div>
                     
                     <div class="file-info" id="file-info">
@@ -594,9 +596,9 @@
             const bbcodeFormat = document.getElementById('bbcode-format');
             const htmlFormat = document.getElementById('html-format');
             
-            let selectedFile = null;
-            let currentImageUrl = '';
-            let currentFileName = '';
+            let selectedFiles = [];
+            let currentImageUrls = [];
+            let currentFileNames = [];
             let activeFormat = 'url';
             
             // 防止默认拖放行为
@@ -658,18 +660,7 @@
             
             // 新上传
             newUploadBtn.addEventListener('click', () => {
-                resultsSection.style.display = 'none';
-                uploadSection.style.display = 'flex';
-                fileInput.value = '';
-                selectedFile = null;
-                fileInfo.style.display = 'none';
-                uploadBtn.style.display = 'none';
-                progressContainer.style.display = 'none';
-                statusText.textContent = '';
-                // 完全重置上传按钮状态
-                uploadBtn.disabled = false;
-                uploadBtn.innerHTML = '<i class="fas fa-upload"></i>上传图片';
-                progressBar.style.width = '0%';
+                window.location.reload();
             });
             
             function preventDefaults(e) {
@@ -692,101 +683,140 @@
             }
             
             function handleFiles(e) {
-                const files = e.target.files;
+                const files = Array.from(e.target.files);
                 if (files.length === 0) return;
                 
-                const file = files[0];
-                if (!file.type.match('image.*')) {
-                    showStatus('请选择图片文件 (JPG, PNG, GIF, WEBP)', 'error');
+                // 限制最多10张图片
+                if (files.length > 10) {
+                    showStatus('一次最多只能上传10张图片', 'error');
                     return;
                 }
                 
-                if (file.size > 5 * 1024 * 1024) {
-                    showStatus('图片大小不能超过 5MB', 'error');
-                    return;
+                // 验证所有文件
+                const validFiles = [];
+                for (const file of files) {
+                    if (!file.type.match('image.*')) {
+                        showStatus(`文件 ${file.name} 不是图片格式 (需要JPG, PNG, GIF, WEBP)`, 'error');
+                        return;
+                    }
+                    
+                    if (file.size > 5 * 1024 * 1024) {
+                        showStatus(`文件 ${file.name} 大小超过5MB限制`, 'error');
+                        return;
+                    }
+                    
+                    validFiles.push(file);
                 }
                 
-                selectedFile = file;
+                selectedFiles = validFiles;
                 
                 // 重置上传按钮状态，确保没有"上传中"的残留状态
                 uploadBtn.disabled = false;
-                uploadBtn.innerHTML = '<i class="fas fa-upload"></i>上传图片';
+                uploadBtn.innerHTML = `<i class="fas fa-upload"></i>上传图片 (${selectedFiles.length}张)`;
                 progressContainer.style.display = 'none';
                 progressBar.style.width = '0%';
                 
                 // 显示文件信息
-                fileName.textContent = file.name;
-                fileSize.textContent = formatFileSize(file.size);
+                if (selectedFiles.length === 1) {
+                    fileName.textContent = selectedFiles[0].name;
+                    fileSize.textContent = formatFileSize(selectedFiles[0].size);
+                } else {
+                    fileName.textContent = `已选择 ${selectedFiles.length} 张图片`;
+                    const totalSize = selectedFiles.reduce((sum, file) => sum + file.size, 0);
+                    fileSize.textContent = `总大小: ${formatFileSize(totalSize)}`;
+                }
+                
                 fileInfo.style.display = 'block';
                 uploadBtn.style.display = 'inline-block';
                 statusText.textContent = '';
             }
             
             async function uploadFile() {
-                if (!selectedFile) return;
-
-                const formData = new FormData();
-                formData.append('image', selectedFile);
+                if (!selectedFiles || selectedFiles.length === 0) return;
 
                 uploadBtn.disabled = true;
                 uploadBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i>上传中...';
                 progressContainer.style.display = 'block';
                 progressBar.style.width = '0%';
-                showStatus('正在上传图片...', 'uploading');
+                showStatus(`正在上传 ${selectedFiles.length} 张图片...`, 'uploading');
 
-                // 模拟进度
-                let progress = 0;
-                const progressInterval = setInterval(() => {
-                    progress += Math.random() * 20;
-                    if (progress > 90) progress = 90;
-                    progressBar.style.width = progress + '%';
-                }, 200);
+                const uploadedUrls = [];
+                const uploadedFileNames = [];
+                let completedCount = 0;
 
                 try {
-                    const response = await fetch('/api/upload', {
-                        method: 'POST',
-                        body: formData
-                    });
+                    // 逐个上传文件
+                    for (let i = 0; i < selectedFiles.length; i++) {
+                        const file = selectedFiles[i];
+                        showStatus(`正在上传第 ${i + 1}/${selectedFiles.length} 张图片: ${file.name}`, 'uploading');
+                        
+                        const formData = new FormData();
+                        formData.append('image', file);
 
-                    const data = await response.json();
-                    
-                    clearInterval(progressInterval);
-                    progressBar.style.width = '100%';
+                        const response = await fetch('/api/upload', {
+                            method: 'POST',
+                            body: formData
+                        });
 
-                    setTimeout(() => {
+                        const data = await response.json();
+                        
                         if (data.success) {
-                            uploadComplete(data.url);
+                            uploadedUrls.push(data.url);
+                            uploadedFileNames.push(file.name);
+                            completedCount++;
+                            
+                            // 更新进度
+                            const progress = (completedCount / selectedFiles.length) * 100;
+                            progressBar.style.width = progress + '%';
                         } else {
-                            showStatus(data.error || '上传失败', 'error');
-                            resetUpload();
+                            throw new Error(`图片 ${file.name} 上传失败: ${data.error}`);
                         }
+                    }
+
+                    // 所有文件上传完成
+                    setTimeout(() => {
+                        uploadComplete(uploadedUrls, uploadedFileNames);
                     }, 500);
 
                 } catch (error) {
-                    clearInterval(progressInterval);
                     progressContainer.style.display = 'none';
-                    showStatus('网络错误，请稍后重试', 'error');
+                    showStatus(error.message || '上传失败，请稍后重试', 'error');
                     resetUpload();
                 }
             }
             
-            function uploadComplete(url) {
-                // 创建预览
-                const reader = new FileReader();
-                reader.onload = (e) => {
-                    imagePreview.src = e.target.result;
-                    currentImageUrl = url;
-                    currentFileName = selectedFile.name;
-                    
-                    // 更新所有格式
-                    updateAllFormats(url, selectedFile.name);
-                    
-                    // 切换到结果页面
-                    uploadSection.style.display = 'none';
-                    resultsSection.style.display = 'block';
-                    progressContainer.style.display = 'none';
-                };
-                reader.readAsDataURL(selectedFile);
+            function uploadComplete(urls, fileNames) {
+                currentImageUrls = urls;
+                currentFileNames = fileNames;
+                
+                // 如果只有一张图片，显示预览
+                if (urls.length === 1) {
+                    const reader = new FileReader();
+                    reader.onload = (e) => {
+                        imagePreview.src = e.target.result;
+                        imagePreview.style.display = 'block';
+                    };
+                    reader.readAsDataURL(selectedFiles[0]);
+                } else {
+                    // 多张图片时隐藏预览
+                    imagePreview.style.display = 'none';
+                }
+                
+                // 更新结果标题
+                const resultsTitle = document.querySelector('.results-title');
+                if (urls.length === 1) {
+                    resultsTitle.innerHTML = '<i class="fas fa-check-circle"></i> 图片上传成功！';
+                } else {
+                    resultsTitle.innerHTML = `<i class="fas fa-check-circle"></i> ${urls.length} 张图片上传成功！`;
+                }
+                
+                // 更新所有格式
+                updateAllFormats(urls, fileNames);
+                
+                // 切换到结果页面
+                uploadSection.style.display = 'none';
+                resultsSection.style.display = 'block';
+                progressContainer.style.display = 'none';
             }
             
             function switchFormat(format) {
@@ -815,16 +845,40 @@
                 copyBtn.innerHTML = `<i class="fas fa-copy"></i> 复制${formatNames[format]}`;
             }
             
-            function updateAllFormats(url, filename) {
-                const name = filename.split('.')[0];
-                
-                urlFormat.textContent = url;
-                markdownFormat.textContent = `![${name}](${url})`;
-                bbcodeFormat.textContent = `[img]${url}[/img]`;
-                htmlFormat.textContent = `<img src="${url}" alt="${name}" />`;
-                
-                // 更新旧的URL显示（兼容性）
-                imageUrl.textContent = url;
+            function updateAllFormats(urls, filenames) {
+                if (urls.length === 1) {
+                    // 单张图片格式
+                    const url = urls[0];
+                    const name = filenames[0].split('.')[0];
+                    
+                    urlFormat.textContent = url;
+                    markdownFormat.textContent = `![${name}](${url})`;
+                    bbcodeFormat.textContent = `[img]${url}[/img]`;
+                    htmlFormat.textContent = `<img src="${url}" alt="${name}" />`;
+                    
+                    // 更新旧的URL显示（兼容性）
+                    imageUrl.textContent = url;
+                } else {
+                    // 多张图片格式
+                    const urlList = urls.join('\n');
+                    const markdownList = urls.map((url, i) => {
+                        const name = filenames[i].split('.')[0];
+                        return `![${name}](${url})`;
+                    }).join('\n');
+                    const bbcodeList = urls.map(url => `[img]${url}[/img]`).join('\n');
+                    const htmlList = urls.map((url, i) => {
+                        const name = filenames[i].split('.')[0];
+                        return `<img src="${url}" alt="${name}" />`;
+                    }).join('\n');
+                    
+                    urlFormat.textContent = urlList;
+                    markdownFormat.textContent = markdownList;
+                    bbcodeFormat.textContent = bbcodeList;
+                    htmlFormat.textContent = htmlList;
+                    
+                    // 更新旧的URL显示（兼容性）
+                    imageUrl.textContent = `${urls.length} 张图片链接`;
+                }
             }
             
             function getCurrentFormatText() {
@@ -847,6 +901,7 @@
                 uploadBtn.innerHTML = '<i class="fas fa-upload"></i>上传图片';
                 progressBar.style.width = '0%';
                 progressContainer.style.display = 'none';
+                selectedFiles = [];
             }
             
             function showStatus(message, type) {

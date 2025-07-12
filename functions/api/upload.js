@@ -32,9 +32,17 @@ export async function onRequestPost(context) {
                      request.headers.get('X-Forwarded-For') || 
                      'unknown';
 
-    // 简单的速率限制检查（使用KV存储会更好，这里用内存作为示例）
-    const now = Date.now();
-    const hourAgo = now - 3600000; // 1小时前
+    // 检查速率限制 (50次/小时)
+    const rateLimitResult = await checkRateLimit(clientIP, env);
+    if (!rateLimitResult.success) {
+      return new Response(JSON.stringify({
+        success: false,
+        error: rateLimitResult.error
+      }), {
+        status: 429,
+        headers: { 'Content-Type': 'application/json' }
+      });
+    }
 
     // 解析表单数据
     const formData = await request.formData();
@@ -74,6 +82,18 @@ export async function onRequestPost(context) {
       });
     }
 
+    // 上传到Telegram前进行NSFW检测
+    const nsfwResult = await checkNSFW(imageFile, env);
+    if (!nsfwResult.success) {
+      return new Response(JSON.stringify({
+        success: false,
+        error: nsfwResult.error
+      }), {
+        status: 400,
+        headers: { 'Content-Type': 'application/json' }
+      });
+    }
+
     // 上传到Telegram
     const result = await uploadToTelegram(imageFile, env, request);
 
@@ -103,6 +123,97 @@ export async function onRequestPost(context) {
       status: 500,
       headers: { 'Content-Type': 'application/json' }
     });
+  }
+}
+
+async function checkRateLimit(clientIP, env) {
+  try {
+    const now = Date.now();
+    const oneHourAgo = now - 3600000; // 1小时前
+    const rateLimitKey = `rate_limit_${clientIP}`;
+    
+    // 如果有KV存储，使用KV进行速率限制
+    if (env.IMAGE_STORE) {
+      const existingData = await env.IMAGE_STORE.get(rateLimitKey);
+      let uploadCounts = existingData ? JSON.parse(existingData) : [];
+      
+      // 清理1小时前的记录
+      uploadCounts = uploadCounts.filter(timestamp => timestamp > oneHourAgo);
+      
+      // 检查是否超过限制（50次/小时）
+      if (uploadCounts.length >= 50) {
+        return {
+          success: false,
+          error: `上传频率过高，请稍后再试。单IP限制：50次/小时`
+        };
+      }
+      
+      // 添加当前时间戳
+      uploadCounts.push(now);
+      
+      // 更新KV存储，设置2小时过期时间
+      await env.IMAGE_STORE.put(rateLimitKey, JSON.stringify(uploadCounts), {
+        expirationTtl: 7200 // 2小时过期
+      });
+      
+      return { success: true };
+    }
+    
+    // 如果没有KV存储，暂时允许上传（生产环境应该有KV存储）
+    console.warn('没有配置KV存储，无法进行速率限制');
+    return { success: true };
+    
+  } catch (error) {
+    console.error('速率限制检查失败:', error);
+    // 错误时允许上传，避免服务中断
+    return { success: true };
+  }
+}
+
+async function checkNSFW(file, env) {
+  try {
+    // 创建表单数据
+    const formData = new FormData();
+    formData.append('image', file);
+
+    // 调用NSFW检测API
+    const response = await fetch('https://nsfwdet.com/api/v1/detect-nsfw', {
+      method: 'POST',
+      headers: {
+        'X-API-Key': 'nsfw_2f7ab4f1d743d69ee242eec932b19671'
+      },
+      body: formData
+    });
+
+    if (!response.ok) {
+      console.warn('NSFW检测API调用失败:', response.status);
+      // 如果API调用失败，允许上传（避免服务中断）
+      return { success: true };
+    }
+
+    const result = await response.json();
+    
+    if (result.code !== 0) {
+      console.warn('NSFW检测返回错误:', result);
+      // 如果API返回错误，允许上传
+      return { success: true };
+    }
+
+    // 检查NSFW分数，如果NSFW分数超过30%则拒绝
+    const nsfwScore = result.result.nsfw || 0;
+    if (nsfwScore > 0.3) {
+      return {
+        success: false,
+        error: '检测到不适宜内容，上传被拒绝'
+      };
+    }
+
+    return { success: true };
+    
+  } catch (error) {
+    console.error('NSFW检测错误:', error);
+    // 发生错误时允许上传，避免服务中断
+    return { success: true };
   }
 }
 
