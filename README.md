@@ -9,9 +9,13 @@
 - 🚀 快速上传，即时获取链接
 - 🛡️ IP速率限制：每小时100次上传
 - 📱 响应式设计，支持移动端
-- 🎨 简洁美观的界面
+- 🎨 简洁美观的界面，采用现代化设计
 - ☁️ 基于Cloudflare Pages，全球CDN加速
 - 🆓 完全免费部署和使用
+- 🔗 自定义域名图片链接（如：https://your-domain.pages.dev/photos/file_123.jpg）
+- 📋 多格式复制支持（直链、Markdown、BB Code、HTML）
+- 🔒 支持私有频道和公开频道
+- 🖥️ 图片反代服务，隐藏Telegram原始链接
 
 ## 📁 项目结构
 
@@ -20,9 +24,11 @@
 ├── public/
 │   └── index.html          # 前端界面
 ├── functions/
-│   └── api/
-│       ├── upload.js       # 上传API (Cloudflare Function)
-│       └── health.js       # 健康检查API
+│   ├── api/
+│   │   ├── upload.js       # 上传API (Cloudflare Function)
+│   │   └── health.js       # 健康检查API
+│   └── photos/
+│       └── [id].js         # 图片反代API (代理Telegram图片)
 ├── .env.example           # 环境变量模板
 ├── .env.cloudflare        # Cloudflare部署环境变量说明
 ├── wrangler.toml          # Cloudflare配置
@@ -97,6 +103,8 @@
 | `TELEGRAM_GROUP_ID` | Telegram群组ID（私有频道） | `-1001234567890` |
 | `TELEGRAM_CHANNEL_ID` | Telegram频道ID（公开频道） | `@your_channel` |
 | `MAX_FILE_SIZE` | 最大文件大小（字节） | `5242880` (5MB) |
+| `CF_PAGES_URL` | 自定义域名（必选） | `your-domain.pages.dev` |
+| `IMAGE_STORE` | KV命名空间绑定（可选） | 自动配置 |
 
 **注意：** `TELEGRAM_GROUP_ID` 和 `TELEGRAM_CHANNEL_ID` 只需要配置其中一个：
 - 私有频道：使用 `TELEGRAM_GROUP_ID`，格式为负数ID（如：-1001234567890）
@@ -168,6 +176,27 @@
   "service": "TG Image Host - Cloudflare Pages"
 }
 ```
+
+## 🎨 界面特性
+
+### 多格式复制支持
+- **直链复制**: 直接的图片URL链接
+- **Markdown格式**: `![图片名称](图片链接)`
+- **BB Code格式**: `[img]图片链接[/img]`
+- **HTML格式**: `<img src="图片链接" alt="图片名称" />`
+
+### 自定义域名图片链接
+上传成功后，图片链接格式为：
+```
+https://your-domain.pages.dev/photos/file_123.jpg
+```
+而不是暴露Telegram的原始链接，提供更好的用户体验和安全性。
+
+### 图片反代服务
+- 通过 `/photos/:id` 路由代理Telegram图片
+- 隐藏原始Telegram API链接
+- 支持缓存，提高访问速度
+- 自动处理图片格式和MIME类型
 
 ## 🔧 技术栈
 

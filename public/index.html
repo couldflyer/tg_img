@@ -385,6 +385,56 @@
             font-size: 14px;
         }
 
+        .format-tabs {
+            display: flex;
+            gap: 10px;
+            margin: 20px 0 15px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .format-tab {
+            background: white;
+            border: 1px solid var(--border);
+            color: var(--gray);
+            padding: 8px 16px;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: var(--transition);
+            font-size: 14px;
+            min-width: 80px;
+        }
+
+        .format-tab:hover {
+            border-color: var(--primary);
+            color: var(--primary);
+        }
+
+        .format-tab.active {
+            background: var(--primary);
+            color: white;
+            border-color: var(--primary);
+        }
+
+        .format-content {
+            width: 100%;
+            margin-bottom: 20px;
+        }
+
+        .format-box {
+            width: 100%;
+            background: white;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 12px 15px;
+            font-family: monospace;
+            font-size: 14px;
+            word-break: break-all;
+            white-space: pre-wrap;
+            min-height: 20px;
+            color: var(--dark);
+        }
+
         @keyframes fadeIn {
             from { opacity: 0; transform: translateY(20px); }
             to { opacity: 1; transform: translateY(0); }
@@ -481,6 +531,21 @@
                     <div class="url-container">
                         <p>图片链接：</p>
                         <div class="url-box" id="image-url"></div>
+                        
+                        <div class="format-tabs">
+                            <button class="format-tab active" data-format="url">直链</button>
+                            <button class="format-tab" data-format="markdown">Markdown</button>
+                            <button class="format-tab" data-format="bbcode">BB Code</button>
+                            <button class="format-tab" data-format="html">HTML</button>
+                        </div>
+                        
+                        <div class="format-content" id="format-content">
+                            <div class="format-box" id="url-format"></div>
+                            <div class="format-box" id="markdown-format" style="display: none;"></div>
+                            <div class="format-box" id="bbcode-format" style="display: none;"></div>
+                            <div class="format-box" id="html-format" style="display: none;"></div>
+                        </div>
+                        
                         <div class="action-buttons">
                             <button class="btn btn-copy" id="copy-btn">
                                 <i class="fas fa-copy"></i> 复制链接
@@ -523,7 +588,17 @@
             const fileSize = document.getElementById('file-size');
             const uploadBtn = document.getElementById('upload-btn');
             
+            // 格式相关元素
+            const formatTabs = document.querySelectorAll('.format-tab');
+            const urlFormat = document.getElementById('url-format');
+            const markdownFormat = document.getElementById('markdown-format');
+            const bbcodeFormat = document.getElementById('bbcode-format');
+            const htmlFormat = document.getElementById('html-format');
+            
             let selectedFile = null;
+            let currentImageUrl = '';
+            let currentFileName = '';
+            let activeFormat = 'url';
             
             // 防止默认拖放行为
             ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
@@ -544,12 +619,16 @@
             dropArea.addEventListener('drop', handleDrop, false);
             
             // 按钮点击触发文件选择
-            browseBtn.addEventListener('click', () => {
+            browseBtn.addEventListener('click', (e) => {
+                e.stopPropagation();
                 fileInput.click();
             });
             
-            dropArea.addEventListener('click', () => {
-                fileInput.click();
+            dropArea.addEventListener('click', (e) => {
+                // 只有点击拖拽区域本身时才触发，避免按钮双重触发
+                if (e.target === dropArea || e.target.closest('.upload-text') || e.target.closest('.upload-icon')) {
+                    fileInput.click();
+                }
             });
             
             // 文件选择处理
@@ -558,9 +637,18 @@
             // 上传按钮事件
             uploadBtn.addEventListener('click', uploadFile);
             
+            // 格式切换事件
+            formatTabs.forEach(tab => {
+                tab.addEventListener('click', () => {
+                    const format = tab.dataset.format;
+                    switchFormat(format);
+                });
+            });
+            
             // 复制链接
             copyBtn.addEventListener('click', () => {
-                navigator.clipboard.writeText(imageUrl.textContent).then(() => {
+                const currentText = getCurrentFormatText();
+                navigator.clipboard.writeText(currentText).then(() => {
                     const originalText = copyBtn.innerHTML;
                     copyBtn.innerHTML = '<i class="fas fa-check"></i> 已复制';
                     setTimeout(() => {
@@ -678,7 +766,11 @@
                 const reader = new FileReader();
                 reader.onload = (e) => {
                     imagePreview.src = e.target.result;
-                    imageUrl.textContent = url;
+                    currentImageUrl = url;
+                    currentFileName = selectedFile.name;
+                    
+                    // 更新所有格式
+                    updateAllFormats(url, selectedFile.name);
                     
                     // 切换到结果页面
                     uploadSection.style.display = 'none';
@@ -686,6 +778,59 @@
                     progressContainer.style.display = 'none';
                 };
                 reader.readAsDataURL(selectedFile);
+            }
+            
+            function switchFormat(format) {
+                // 更新激活的tab
+                formatTabs.forEach(tab => {
+                    tab.classList.toggle('active', tab.dataset.format === format);
+                });
+                
+                // 隐藏所有格式框
+                document.querySelectorAll('.format-box').forEach(box => {
+                    box.style.display = 'none';
+                });
+                
+                // 显示选中的格式框
+                document.getElementById(`${format}-format`).style.display = 'block';
+                
+                activeFormat = format;
+                
+                // 更新复制按钮文本
+                const formatNames = {
+                    'url': '直链',
+                    'markdown': 'Markdown',
+                    'bbcode': 'BB Code',
+                    'html': 'HTML'
+                };
+                copyBtn.innerHTML = `<i class="fas fa-copy"></i> 复制${formatNames[format]}`;
+            }
+            
+            function updateAllFormats(url, filename) {
+                const name = filename.split('.')[0];
+                
+                urlFormat.textContent = url;
+                markdownFormat.textContent = `![${name}](${url})`;
+                bbcodeFormat.textContent = `[img]${url}[/img]`;
+                htmlFormat.textContent = `<img src="${url}" alt="${name}" />`;
+                
+                // 更新旧的URL显示（兼容性）
+                imageUrl.textContent = url;
+            }
+            
+            function getCurrentFormatText() {
+                switch(activeFormat) {
+                    case 'url':
+                        return urlFormat.textContent;
+                    case 'markdown':
+                        return markdownFormat.textContent;
+                    case 'bbcode':
+                        return bbcodeFormat.textContent;
+                    case 'html':
+                        return htmlFormat.textContent;
+                    default:
+                        return urlFormat.textContent;
+                }
             }
             
             function resetUpload() {

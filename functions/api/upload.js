@@ -75,13 +75,15 @@ export async function onRequestPost(context) {
     }
 
     // 上传到Telegram
-    const result = await uploadToTelegram(imageFile, env);
+    const result = await uploadToTelegram(imageFile, env, request);
 
     return new Response(JSON.stringify({
       success: true,
-      url: result.url,
+      url: result.proxyUrl,
+      originalUrl: result.originalUrl,
       filename: imageFile.name,
-      size: imageFile.size
+      size: imageFile.size,
+      fileId: result.file_id
     }), {
       status: 200,
       headers: { 
@@ -104,7 +106,7 @@ export async function onRequestPost(context) {
   }
 }
 
-async function uploadToTelegram(file, env) {
+async function uploadToTelegram(file, env, request) {
   const botToken = env.TELEGRAM_BOT_TOKEN;
   // 支持群组ID（私有频道）和频道用户名（公开频道）
   const chatId = env.TELEGRAM_GROUP_ID || env.TELEGRAM_CHANNEL_ID;
@@ -136,11 +138,35 @@ async function uploadToTelegram(file, env) {
     const fileResult = await fileResponse.json();
     
     if (fileResult.ok) {
-      const imageUrl = `https://api.telegram.org/file/bot${botToken}/${fileResult.result.file_path}`;
+      const originalUrl = `https://api.telegram.org/file/bot${botToken}/${fileResult.result.file_path}`;
+      
+      // 生成自定义文件ID和代理URL
+      const customFileId = `file_${largestPhoto.file_id.replace(/[\/\-]/g, '_')}`;
+      const proxyUrl = `https://${env.CF_PAGES_URL || request.headers.get('host') || 'your-domain.pages.dev'}/photos/${customFileId}.jpg`;
+      
+      // 存储映射关系到KV（如果可用）
+      try {
+        if (env.IMAGE_STORE) {
+          await env.IMAGE_STORE.put(customFileId, JSON.stringify({
+            url: originalUrl,
+            fileId: largestPhoto.file_id,
+            fileName: file.name,
+            uploadTime: new Date().toISOString()
+          }), {
+            expirationTtl: 365 * 24 * 60 * 60 // 1年过期
+          });
+        }
+      } catch (kvError) {
+        console.warn('KV存储失败:', kvError);
+      }
+      
       return {
         success: true,
-        url: imageUrl,
+        url: originalUrl,
+        proxyUrl: proxyUrl,
+        originalUrl: originalUrl,
         file_id: largestPhoto.file_id,
+        customFileId: customFileId,
         message_id: result.result.message_id
       };
     }
