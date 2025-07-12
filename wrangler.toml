@@ -1,0 +1,8 @@
+{
+  "pages_build_output_dir": "public",
+  "preview_branch_includes": ["main", "dev"],
+  "build": {
+    "command": "echo 'No build command needed for static site'",
+    "cwd": "."
+  }
+}
