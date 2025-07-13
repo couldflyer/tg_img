@@ -29,10 +29,10 @@ export async function onRequestGet(context) {
     const imageData = await imageResponse.arrayBuffer();
     const contentType = imageResponse.headers.get('content-type') || 'image/jpeg';
 
-    // 设置缓存头
+    // 设置强制缓存头
     const headers = new Headers({
       'Content-Type': contentType,
-      'Cache-Control': 'public, max-age=31536000', // 1年缓存
+      'Cache-Control': 'public, max-age=31536000, immutable', // 1年强制缓存
       'Access-Control-Allow-Origin': '*',
       'Cross-Origin-Resource-Policy': 'cross-origin'
     });
