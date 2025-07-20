@@ -1,274 +1,269 @@
-# TG Image Host - Cloudflare Pages
+🎉基于R2储存的图床/视频床/文件床项目已完成，欢迎部署测试👉[JSimages](https://github.com/0-RTT/JSimages)
 
-一个简洁、快速、免费的图片托管服务，使用Telegram频道作为存储后端，部署在Cloudflare Pages。
+# 介绍
+基于 Cloudflare Worker 和 Pages 以及TG_BOT的图床/视频床/文件床服务
 
-## ✨ 特性
+## 功能特点
 
-- 🖼️ 支持多种图片格式（JPG, PNG, GIF, WebP）
-- 📏 文件大小限制：5MB
-- 🚀 快速上传，即时获取链接
-- 🛡️ IP速率限制：每小时100次上传
-- 📱 响应式设计，支持移动端
-- 🎨 简洁美观的界面，采用现代化设计
-- ☁️ 基于Cloudflare Pages，全球CDN加速
-- 🆓 完全免费部署和使用
-- 🔗 自定义域名图片链接（如：https://your-domain.pages.dev/photos/file_123.jpg）
-- 📋 多格式复制支持（直链、Markdown、BB Code、HTML）
-- 🔒 支持私有频道和公开频道
-- 🖥️ 图片反代服务，隐藏Telegram原始链接
+- 可选的访客验证功能
+- 可选的图片压缩功能（默认开启）
+- 可选的文件大小限制（默认20MB）
+- 支持查看本地历史记录
+- 支持所有文件格式上传
+- 支持多文件上传和粘贴上传
+- 支持批量操作和显示上传时间
+- Cloudflare Cache API 缓存支持
+- 基于 Telegram Bot API 的文件存储
 
-## 📁 项目结构
+## 更新日志
 
-```
-/
-├── public/
-│   └── index.html          # 前端界面
-├── functions/
-│   ├── api/
-│   │   ├── upload.js       # 上传API (Cloudflare Function)
-│   │   └── health.js       # 健康检查API
-│   └── photos/
-│       └── [id].js         # 图片反代API (代理Telegram图片)
-├── .env.example           # 环境变量模板
-├── .env.cloudflare        # Cloudflare部署环境变量说明
-├── wrangler.toml          # Cloudflare配置
-└── README.md              # 项目文档
-```
+> **最近更新**: 2024-12-18
+> - 更新管理界面样式
+> - 移除前端的文件类型和文件大小限制
+> - 通过环境变量控制上传文件的大小
 
-## 🚀 快速部署
+<details>
+<summary>历史更新记录</summary>
 
-### 方式一：通过Git连接部署
+### 2024-12-18
+- 更新管理界面样式
+- 移除前端的文件类型和文件大小限制
+- 通过环境变量控制上传文件的大小
 
-1. **Fork此项目到你的GitHub**
+### 2024-12-17
+- 在前端新增一个压缩按钮，用于控制压缩功能，默认状态为开启。
 
-2. **登录Cloudflare Dashboard**
-   - 访问 [Cloudflare Pages](https://pages.cloudflare.com/)
-   - 点击 "Create a project"
+### 2024-12-13
+- 通过哈希校验来避免重复上传。
+- 调整压缩率为0.75，同时去除分辨率限制。
+- 给删除接口 `/delete-images` 添加了认证检查。
 
-3. **连接Git仓库**
-   - 选择你Fork的仓库
-   - 选择分支（通常是main）
+### 2024-11-29
+#### 管理页面
+- 新增全选和复制功能
+- 删除前进行二次确认
+- 优化资源加载逻辑
+- 禁用视频文件自动播放
+#### 首页
+- 修复粘贴上传时不显示移除按钮的问题
 
-4. **配置构建设置**
-   - 构建命令：留空
-   - 构建输出目录：`public`
-   - Root目录：`/`
+### 2024-11-21日
+- 优化上传体验，默认开启压缩，加快文件上传速度
+  - 如需关闭，请将代码的238行修改为```enableCompression: false```
 
-5. **设置环境变量**
-   在 Settings → Environment variables 中添加：
-   ```
-   TELEGRAM_BOT_TOKEN=your_bot_token_here
-   TELEGRAM_GROUP_ID=-1001234567890  # 私有频道
-   # 或者
-   TELEGRAM_CHANNEL_ID=@your_channel  # 公开频道
-   MAX_FILE_SIZE=5242880
-   ```
+### 2024-11-01
+- 修复上传后无法加载的问题
 
-6. **部署完成**
-   - Cloudflare会自动构建和部署
-   - 获得一个 `*.pages.dev` 域名
+### 2024-10-19
+- 修复webp无法上传的BUG
+- 优化数据库结构，[查看迁移教程](https://github.com/0-RTT/telegraph/releases/tag/v2.0)
 
-### 方式二：使用Wrangler CLI
+### 2024-09-29
+- 优化缓存功能，采用 Cloudflare Cache API 缓存支持
 
-1. **安装Wrangler**
-   ```bash
-   npm install -g wrangler
-   ```
+### 2024-09-25
+- 修复GIF文件上传的问题，感谢 [nodeseek](https://www.nodeseek.com/) 用户 [@Libs](https://www.nodeseek.com/space/7214#/general) 提供的思路
+- Telegraph接口移到了telegraph分支，main分支为TG_BOT接口，可以通过直接fork仓库部署到pages
 
-2. **登录Cloudflare**
-   ```bash
-   wrangler login
-   ```
+### 2024-09-23
+- 修复链接失效的问题，支持视频文件上传
 
-3. **部署项目**
-   ```bash
-   wrangler pages deploy public --project-name tg-image-host
-   ```
+### 2024-09-14
+- Telegraph接口上传的文件有**时效性**，建议使用TG_BOT上传
 
-4. **设置环境变量**
-   ```bash
-   wrangler pages secret put TELEGRAM_BOT_TOKEN
-   # 私有频道使用群组ID
-   wrangler pages secret put TELEGRAM_GROUP_ID
-   # 或者公开频道使用频道用户名
-   wrangler pages secret put TELEGRAM_CHANNEL_ID
-   wrangler pages secret put MAX_FILE_SIZE
-   ```
+### 2024-09-13
+- 支持通过TG_BOT上传到频道
 
-## ⚙️ 环境变量配置
+### 2024-09-12
+- 已修复，可正常上传到telegraph
 
-| 变量名 | 说明 | 示例值 |
-|--------|------|--------|
-| `TELEGRAM_BOT_TOKEN` | Telegram Bot Token | `123456:ABC-DEF1234ghIkl-zyx57W2v1u123ew11` |
-| `TELEGRAM_GROUP_ID` | Telegram群组ID（私有频道） | `-1001234567890` |
-| `TELEGRAM_CHANNEL_ID` | Telegram频道ID（公开频道） | `@your_channel` |
-| `MAX_FILE_SIZE` | 最大文件大小（字节） | `5242880` (5MB) |
-| `CF_PAGES_URL` | 自定义域名（可选） | `your-domain.pages.dev` |
-| `IMAGE_STORE` | KV命名空间绑定（可选） | 自动配置 |
+### 2024-09-06
+> ~~2024年9月6日起 telegra.ph 禁止了上传媒体文件，此项目终结。~~
 
-**注意：** `TELEGRAM_GROUP_ID` 和 `TELEGRAM_CHANNEL_ID` 只需要配置其中一个：
-- 私有频道：使用 `TELEGRAM_GROUP_ID`，格式为负数ID（如：-1001234567890）
-- 公开频道：使用 `TELEGRAM_CHANNEL_ID`，格式为@用户名（如：@your_channel）
+</details>
 
-## 🤖 创建Telegram Bot
+## 部署步骤
 
-1. **与BotFather对话**
-   - 打开Telegram，搜索 [@BotFather](https://t.me/BotFather)
-   - 发送 `/newbot` 创建新机器人
+### 1. 变量说明
+需要在 Cloudflare Workers 中配置以下环境变量:
 
-2. **设置机器人信息**
-   - 输入机器人名称（如：My Image Host Bot）
-   - 输入机器人用户名（如：myimagehost_bot）
-   - 获取Bot Token
+| 变量名 | 说明 | 必填 | 示例 |
+|--------|------|------|------|
+| DOMAIN | 自定义域名 | 是 | example.workers.dev |
+| DATABASE | D1 数据库绑定变量名称 | 是 | DATABASE |
+| TG_BOT_TOKEN | Telegram Bot Token | 是 | 123456789:ABCdefGHIjklMNOpqrsTUVwxyz |
+| TG_CHAT_ID | Telegram 频道/群组 ID | 是 | -100xxxxxxxxxx |
+| USERNAME | 管理员用户名 | 是 | admin |
+| PASSWORD | 管理员密码 | 是 | password123 |
+| ADMIN_PATH | 管理后台路径 | 是 | admin |
+| ENABLE_AUTH | 访客验证（设置为 true 开启，不设置或设置为 false 则关闭） | 否 | false |
+| MAX_SIZE_MB | 单文件最大支持大小（单位：MB，默认值为 20） | 否 | 20 |
 
-3. **创建频道（公开或私有）**
-   - 创建一个新的Telegram频道
-   - 将Bot添加为频道管理员
-   - 公开频道：确保频道是公开的，获取频道用户名（如：@myimagechannel）
-   - 私有频道：获取频道的群组ID（负数格式，如：-1001234567890）
-   
-4. **获取群组ID（仅私有频道需要）**
-   - 将Bot添加到私有频道后
-   - 向频道发送任意消息
-   - 使用 Telegram Bot API 获取更新：`https://api.telegram.org/bot<your_bot_token>/getUpdates`
-   - 在返回的JSON中找到 `chat.id` 字段（负数值）
+### 2. 创建 Telegram Bot
+1. 在 Telegram 中找到 [@BotFather](https://t.me/BotFather)
+2. 发送 `/newbot` 命令创建新机器人
+3. 按照提示设置机器人名和用户名
+4. 保存获得的 Bot Token (格式为`123456789:ABCdefGHIjklMNOpqrsTUVwxyz`)
+   - 这个 Token 将用作环境变量 `TG_BOT_TOKEN`
 
-## 📋 API文档
+### 3. 创建 Telegram 频道或群组
+1. 创建一个新的频道或群组
+2. 将你的 Bot 添加为管理员
+3. 获取频道/群组 ID：
+   - 发送频道内的任意消息给 [@getidsbot](https://t.me/getidsbot)
+   - 在 Origin chat 下找到对应的 ID (格式为 `-100xxxxxxxxxx`)
+   - 这个 ID 将用作环境变量 `TG_CHAT_ID`
 
-### 上传图片
-
-**POST** `/api/upload`
-
-**请求格式：** multipart/form-data
-
-**参数：**
-- `image`: 图片文件（必填）
-
-**响应示例：**
-
-成功：
-```json
-{
-  "success": true,
-  "url": "https://api.telegram.org/file/bot<token>/<file_path>",
-  "filename": "image.jpg",
-  "size": 1024000
-}
+### 4. 创建 D1 数据库
+1. 登录 [Cloudflare Dashboard](https://dash.cloudflare.com)
+2. 进入 `Workers & Pages` → `D1 SQL 数据库`
+3. 点击 `创建` 创建数据库
+   - 数据库名称可自定义，例如`images`
+   - 建议选择数据库位置为 `亚太地区`，可以获得更好的访问速度
+4. 创建数据表:
+   - 点击数据库名称进入详情页
+   - 选择 `控制台` 标签
+   - 执行下 SQL 语句:
+```sql
+CREATE TABLE media (
+    url TEXT PRIMARY KEY,
+    fileId TEXT NOT NULL
+);
 ```
 
-失败：
-```json
-{
-  "success": false,
-  "error": "错误信息"
-}
-```
+### 5. 创建 Worker
+1. 进入 `Workers & Pages`
+2. 点击 `创建`
+3. 选择 `创建 Worker`
+4. 为 Worker 设置一个名称
+5. 点击 `部署` 创建 Worker
+6. 点击继续处理项目
 
-### 健康检查
+### 6. 配置变量和机密
+1. 在 Worker 的 `设置` → `变量和机密` 中
+2. 根据需要逐个点击 `添加` 添加以下变量
+   - DOMAIN
+   - TG_BOT_TOKEN
+   - TG_CHAT_ID
+   - USERNAME
+   - PASSWORD
+   - ADMIN_PATH
+   - ENABLE_AUTH（可选）
+   - MAX_SIZE_MB（可选）
+3. 点击 `部署`
 
-**GET** `/api/health`
+### 7. 绑定数据库
+1. 在 Worker 设置页面找到 `设置` → `绑定`
+2. 点击 `添加` 添加以下变量名称
+   - DATABASE
+3. 点击 `部署`
 
-**响应：**
-```json
-{
-  "status": "ok",
-  "timestamp": "2024-01-01T00:00:00.000Z",
-  "service": "TG Image Host - Cloudflare Pages"
-}
-```
+### 8. 绑定域名
+1. 在 Worker 的 `设置` → `域和路由`
+2. 点击 `添加` → `自定义域`
+3. 输入你在Cloudflare绑定的域名
+4. 点击 `添加域`
+5. 等待域名生效
 
-## 🎨 界面特性
+### 9. 部署代码
+1. 进入你的worker项目 → 点击编辑代码
+2. 将 `_worker.js` 的完整代码复制粘贴到编辑器中
+3. 点击 `部署`
 
-### 多格式复制支持
-- **直链复制**: 直接的图片URL链接
-- **Markdown格式**: `![图片名称](图片链接)`
-- **BB Code格式**: `[img]图片链接[/img]`
-- **HTML格式**: `<img src="图片链接" alt="图片名称" />`
+## 部署步骤参考：
 
-### 自定义域名图片链接
-上传成功后，图片链接格式为：
-```
-https://your-domain.pages.dev/photos/file_123.jpg
-```
-而不是暴露Telegram的原始链接，提供更好的用户体验和安全性。
+> ⚠️ 以下图片里的仅供参考，Cloudflare 面板可能会更新，具体操作请以上方文字教程为准。
 
-### 图片反代服务
-- 通过 `/photos/:id` 路由代理Telegram图片
-- 隐藏原始Telegram API链接
-- 支持缓存，提高访问速度
-- 自动处理图片格式和MIME类型
+> 💡另外可以参考 nodeseek用户@sdo888的[图文教程](https://www.nodeseek.com/post-196832-1)
 
-## 🔧 技术栈
+### Worker 部署示例
 
-- **前端：** 原生HTML/CSS/JavaScript
-- **后端：** Cloudflare Pages Functions
-- **图片存储：** Telegram Bot API
-- **CDN：** Cloudflare全球网络
-- **部署：** Cloudflare Pages
+#### 1、初始化数据库
+![image](https://kycloud3.koyoo.cn/20241007ae0fa202410070917194587.png)  
 
-## 🌟 优势
+![image](https://kycloud3.koyoo.cn/202410074b824202410070851275140.png)  
+ 
+![image](https://kycloud3.koyoo.cn/20241007917fa202410070852019143.png)  
+ 
+![image](https://kycloud3.koyoo.cn/20240829426e2202408291111415611.png)  
 
-1. **完全免费**
-   - Cloudflare Pages免费套餐足够使用
-   - Telegram存储无限制
+![image](https://kycloud3.koyoo.cn/202408290028f20240829111205448.png)  
 
-2. **全球加速**
-   - Cloudflare全球CDN
-   - 边缘计算处理
+#### 2、创建worker
+![image](https://kycloud3.koyoo.cn/202408295c74a202408291112222566.png)
 
-3. **高可用性**
-   - 99.9%+ SLA保证
-   - 自动故障转移
+![image](https://kycloud3.koyoo.cn/20240829b4a21202408291118209822.png)
 
-4. **简单部署**
-   - Git集成自动部署
-   - 零配置启动
+#### 3、设置自定义域名
+![image](https://kycloud3.koyoo.cn/20240829d5fe4202408291113048235.png)
 
-## 📝 注意事项
+![image](https://kycloud3.koyoo.cn/20240829f9ecc202408291113197734.png)
 
-1. **Telegram频道设置**
-   - Bot必须有发送消息权限
-   - 私有频道：确保Bot被添加为管理员，使用群组ID格式（负数）
-   - 公开频道：确保频道是公开的，使用频道用户名格式（@channel_name）
+![image](https://kycloud3.koyoo.cn/2024082997a84202408291113394516.png)
 
-2. **文件限制**
-   - 支持的格式：JPEG, JPG, PNG, GIF, WebP
-   - 最大文件大小：5MB（可在环境变量中调整）
+![image](https://kycloud3.koyoo.cn/202408294223e202408291114234528.png)
 
-3. **Cloudflare限制**
-   - 单个请求最大25MB（足够图片上传）
-   - CPU时间限制：10ms（免费版）/50ms（付费版）
-   - 每日请求限制：100,000次（免费版）
+![image](https://kycloud3.koyoo.cn/202408294def5202408291113564340.png)
 
-4. **速率限制**
-   - 基于IP地址的简单限制
-   - 如需更复杂限制，可使用Cloudflare KV存储
+#### 4、设置变量
+![image](https://kycloud3.koyoo.cn/2024092389dc0202409232021524424.png) 
 
-## 🔒 安全考虑
+#### 5、将_worker.js中的代码复制粘贴到编辑器中
+![image](https://kycloud3.koyoo.cn/202408299f1cf202408291115372291.png)
 
-- 环境变量存储在Cloudflare中，安全可靠
-- 支持HTTPS，所有传输加密
-- 可配置自定义域名和SSL证书
-- 建议定期轮换Bot Token
+![image](https://kycloud3.koyoo.cn/2024082995808202408291115555979.png)
 
-## 🌐 自定义域名
+#### 6、点击部署即可
+![image](https://kycloud3.koyoo.cn/20240829a4d5f202408291117024227.png)
 
-1. 在Cloudflare Pages项目中点击 "Custom domains"
-2. 添加你的域名
-3. 按照提示更新DNS记录
-4. 等待SSL证书自动配置
+## Pages部署教程：
 
-## 🤝 贡献
+#### 1、初始化数据库
+![image](https://kycloud3.koyoo.cn/20241007ae0fa202410070917194587.png)  
 
-欢迎提交Issue和Pull Request！
+![image](https://kycloud3.koyoo.cn/202410074b824202410070851275140.png)  
+ 
+![image](https://kycloud3.koyoo.cn/20241007917fa202410070852019143.png)  
+ 
+![image](https://kycloud3.koyoo.cn/20240829426e2202408291111415611.png)  
 
-## 📄 许可证
+![image](https://kycloud3.koyoo.cn/202408290028f20240829111205448.png)  
+
+#### 2、部署到pages
+
+![image](https://kycloud3.koyoo.cn/20241007f786a202410070857578208.png)
+
+- 2.1 下载_worker.js，打包成zip上传到pages
+
+![image](https://kycloud3.koyoo.cn/2024100790232202410070900405992.png)
+
+- 2.2 通过fork本仓库部署到pages
+![image](https://kycloud3.koyoo.cn/20241007d7bf6202410070902287155.png)
+![image](https://kycloud3.koyoo.cn/20241007a4b2f202410070902288891.png)
+
+#### 3、设置变量
+![image](https://kycloud3.koyoo.cn/2024092389dc0202409232021524424.png) 
+
+#### 4、设置自定义域名。
+![image](https://kycloud3.koyoo.cn/202409068f76a202409061718122696.png)  
+
+![image](https://kycloud3.koyoo.cn/20240906b79a6202409061719043430.png)  
+
+![image](https://kycloud3.koyoo.cn/20240906188f8202409061720032928.png)  
+
+#### 5、重新部署生效刚刚配置的自定义域名和变量
+
+![image](https://kycloud3.koyoo.cn/202409066761e202409061721281588.png)  
+
+![image](https://kycloud3.koyoo.cn/2024090677f2320240906172317323.png)  
+
+![image](https://kycloud3.koyoo.cn/202409065c29920240906172451915.png)  
+
+## 开源协议
 
 MIT License
 
-## 🔗 相关链接
+## 💰赞助商
 
-- [Cloudflare Pages 文档](https://developers.cloudflare.com/pages/)
-- [Cloudflare Functions 文档](https://developers.cloudflare.com/pages/platform/functions/)
-- [Telegram Bot API文档](https://core.telegram.org/bots/api)
-- [Wrangler CLI 文档](https://developers.cloudflare.com/workers/wrangler/)
+- [NodeSupport](https://github.com/NodeSeekDev/NodeSupport)
+- [![yxvm_support.png](https://kycloud3.koyoo.cn/20250411e0a01202504111413152588.png)](https://yxvm.com/)
