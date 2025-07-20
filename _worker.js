@@ -53,10 +53,11 @@ async function handleRootRequest(request, USERNAME, PASSWORD, enableAuth) {
   <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="description" content="Telegraph图床-基于Workers的图床服务">
+  <meta name="description" content="TG图床 - By Liuts">
   <meta name="keywords" content="Telegraph图床,Workers图床, Cloudflare, Workers,telegra.ph, 图床">
-  <title>Telegraph图床-基于Workers的图床服务</title>
-  <link rel="icon" href="https://p1.meituan.net/csc/c195ee91001e783f39f41ffffbbcbd484286.ico" type="image/x-icon">
+  <title>TG图床 - By Liuts</title>
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Cdefs%3E%3ClinearGradient id='grad' x1='0%25' y1='0%25' x2='100%25' y2='100%25'%3E%3Cstop offset='0%25' style='stop-color:%234361ee;stop-opacity:1' /%3E%3Cstop offset='100%25' style='stop-color:%237209b7;stop-opacity:1' /%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='100' height='100' rx='20' fill='url(%23grad)'/%3E%3Cpath d='M50 25 L75 40 L75 60 L50 75 L25 60 L25 40 Z' fill='white' stroke='white' stroke-width='2'/%3E%3Ccircle cx='50' cy='45' r='8' fill='url(%23grad)'/%3E%3Crect x='42' y='55' width='16' height='4' rx='2' fill='url(%23grad)'/%3E%3C/svg%3E">
+  <link rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Cdefs%3E%3ClinearGradient id='grad' x1='0%25' y1='0%25' x2='100%25' y2='100%25'%3E%3Cstop offset='0%25' style='stop-color:%234361ee;stop-opacity:1' /%3E%3Cstop offset='100%25' style='stop-color:%237209b7;stop-opacity:1' /%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='100' height='100' rx='20' fill='url(%23grad)'/%3E%3Cpath d='M50 25 L75 40 L75 60 L50 75 L25 60 L25 40 Z' fill='white' stroke='white' stroke-width='2'/%3E%3Ccircle cx='50' cy='45' r='8' fill='url(%23grad)'/%3E%3Crect x='42' y='55' width='16' height='4' rx='2' fill='url(%23grad)'/%3E%3C/svg%3E">
   <link href="https://lf3-cdn-tos.bytecdntp.com/cdn/expire-1-M/twitter-bootstrap/4.6.1/css/bootstrap.min.css" rel="stylesheet" />
   <link href="https://lf26-cdn-tos.bytecdntp.com/cdn/expire-1-M/bootstrap-fileinput/5.2.7/css/fileinput.min.css" rel="stylesheet" />
   <link href="https://lf26-cdn-tos.bytecdntp.com/cdn/expire-1-M/toastr.js/2.1.4/toastr.min.css" rel="stylesheet" />
