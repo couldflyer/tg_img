@@ -58,10 +58,10 @@ async function handleRootRequest(request, USERNAME, PASSWORD, enableAuth) {
   <title>TG图床 - By Liuts</title>
   <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Cdefs%3E%3ClinearGradient id='grad' x1='0%25' y1='0%25' x2='100%25' y2='100%25'%3E%3Cstop offset='0%25' style='stop-color:%234361ee;stop-opacity:1' /%3E%3Cstop offset='100%25' style='stop-color:%237209b7;stop-opacity:1' /%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='100' height='100' rx='20' fill='url(%23grad)'/%3E%3Cpath d='M50 25 L75 40 L75 60 L50 75 L25 60 L25 40 Z' fill='white' stroke='white' stroke-width='2'/%3E%3Ccircle cx='50' cy='45' r='8' fill='url(%23grad)'/%3E%3Crect x='42' y='55' width='16' height='4' rx='2' fill='url(%23grad)'/%3E%3C/svg%3E">
   <link rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Cdefs%3E%3ClinearGradient id='grad' x1='0%25' y1='0%25' x2='100%25' y2='100%25'%3E%3Cstop offset='0%25' style='stop-color:%234361ee;stop-opacity:1' /%3E%3Cstop offset='100%25' style='stop-color:%237209b7;stop-opacity:1' /%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='100' height='100' rx='20' fill='url(%23grad)'/%3E%3Cpath d='M50 25 L75 40 L75 60 L50 75 L25 60 L25 40 Z' fill='white' stroke='white' stroke-width='2'/%3E%3Ccircle cx='50' cy='45' r='8' fill='url(%23grad)'/%3E%3Crect x='42' y='55' width='16' height='4' rx='2' fill='url(%23grad)'/%3E%3C/svg%3E">
-  <link href="https://lf3-cdn-tos.bytecdntp.com/cdn/expire-1-M/twitter-bootstrap/4.6.1/css/bootstrap.min.css" rel="stylesheet" />
-  <link href="https://lf26-cdn-tos.bytecdntp.com/cdn/expire-1-M/bootstrap-fileinput/5.2.7/css/fileinput.min.css" rel="stylesheet" />
-  <link href="https://lf26-cdn-tos.bytecdntp.com/cdn/expire-1-M/toastr.js/2.1.4/toastr.min.css" rel="stylesheet" />
-  <link href="https://lf3-cdn-tos.bytecdntp.com/cdn/expire-1-M/font-awesome/5.15.4/css/all.min.css" type="text/css" rel="stylesheet" />
+  <link href="https://s4.zstatic.net/ajax/libs/twitter-bootstrap/4.6.1/css/bootstrap.min.css" rel="stylesheet" />
+  <link href="https://s4.zstatic.net/ajax/libs/bootstrap-fileinput/5.2.7/css/fileinput.min.css" rel="stylesheet" />
+  <link href="https://s4.zstatic.net/ajax/libs/toastr.js/2.1.4/toastr.min.css" rel="stylesheet" />
+  <link href="https://s4.zstatic.net/ajax/libs/font-awesome/5.15.4/css/all.min.css" type="text/css" rel="stylesheet" />
   <style>
       body {
           margin: 0;
@@ -183,10 +183,10 @@ async function handleRootRequest(request, USERNAME, PASSWORD, enableAuth) {
           </form>
       </div>
       <p class="project-link">项目开源于 GitHub - <a href="https://github.com/0-RTT/telegraph" target="_blank" rel="noopener noreferrer">0-RTT/telegraph</a></p>
-      <script src="https://lf3-cdn-tos.bytecdntp.com/cdn/expire-1-M/jquery/3.6.0/jquery.min.js" type="application/javascript"></script>
-      <script src="https://lf26-cdn-tos.bytecdntp.com/cdn/expire-1-M/bootstrap-fileinput/5.2.7/js/fileinput.min.js" type="application/javascript"></script>
-      <script src="https://lf26-cdn-tos.bytecdntp.com/cdn/expire-1-M/bootstrap-fileinput/5.2.7/js/locales/zh.min.js" type="application/javascript"></script>
-      <script src="https://lf9-cdn-tos.bytecdntp.com/cdn/expire-1-M/toastr.js/2.1.4/toastr.min.js" type="application/javascript"></script>
+      <script src="https://s4.zstatic.net/ajax/libs/jquery/3.6.0/jquery.min.js" type="application/javascript"></script>
+      <script src="https://s4.zstatic.net/ajax/libs/bootstrap-fileinput/5.2.7/js/fileinput.min.js" type="application/javascript"></script>
+      <script src="https://s4.zstatic.net/ajax/libs/bootstrap-fileinput/5.2.7/js/locales/zh.min.js" type="application/javascript"></script>
+      <script src="https://s4.zstatic.net/ajax/libs/toastr.js/2.1.4/toastr.min.js" type="application/javascript"></script>
       <script>
       async function fetchBingImages() {
         const response = await fetch('/bing-images');
